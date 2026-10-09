@@ -17,7 +17,8 @@ const AddDialog = ({open, setOpen}: any) => {
         let newUser = {
             name: name.trim(),
             age: Number(age),
-            id: Date.now()
+            id: Date.now(),
+            status: 'active'
         }
 
         addUser(newUser)

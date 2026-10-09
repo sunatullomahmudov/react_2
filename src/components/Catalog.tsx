@@ -1,12 +1,12 @@
 import { useState } from 'react'
 import { useAtom } from 'jotai'
-import { Avatar, Button, Card, CardActions, CardContent, Checkbox, Chip, Container, IconButton, Stack, TextField, Typography } from '@mui/material'
+import { Avatar, Button, Card, CardActions, CardContent, Chip, Container, FormControl, IconButton, InputLabel, MenuItem, Select, Stack, TextField, Typography } from '@mui/material'
 import AddIcon from '@mui/icons-material/Add'
 import DeleteIcon from '@mui/icons-material/Delete'
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined'
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined'
 import SearchIcon from '@mui/icons-material/Search'
-import { dataAtom, deleteUserAtom } from '../store/jotai'
+import { changeStatusAtom, dataAtom, deleteUserAtom } from '../store/jotai'
 import AddDialog from './AddDialog'
 import EditDialog from './EditDialog'
 import InfoDialog from './InfoDialog'
@@ -14,28 +14,19 @@ import InfoDialog from './InfoDialog'
 const Catalog = () => {
   let [addOpen, setAddOpen] = useState(false)
   let [query, setQuery] = useState('')
-  let [selectedIds, setSelectedIds] = useState<number[]>([])
+  let [status, setStatus] = useState('all')
   let [editingUser, setEditingUser] = useState<any>(null)
   let [infoUser, setInfoUser] = useState<any>(null)
   let [data] = useAtom(dataAtom)
   let [, deleteUser] = useAtom(deleteUserAtom)
+  let [, changeStatus] = useAtom(changeStatusAtom)
 
   let visibleUsers = data.filter((el) => {
-    return el.name.toLowerCase().includes(query.toLowerCase())
+    let findName = el.name.toLowerCase().includes(query.toLowerCase())
+    let findStatus = status == 'all' || el.status == status
+
+    return findName && findStatus
   })
-
-  let selectUser = (id: number) => {
-    if (selectedIds.includes(id)) {
-      setSelectedIds(selectedIds.filter((el) => el != id))
-    } else {
-      setSelectedIds([...selectedIds, id])
-    }
-  }
-
-  let deleteOneUser = (id: number) => {
-    deleteUser(id)
-    setSelectedIds(selectedIds.filter((el) => el != id))
-  }
 
   return (
     <main className="min-h-screen bg-slate-100 py-10">
@@ -54,21 +45,35 @@ const Catalog = () => {
           </Button>
         </Stack>
 
-        <TextField
-          fullWidth
-          placeholder="Search by name..."
-          value={query}
-          onChange={(event) => setQuery(event.target.value)}
-          slotProps={{
-            input: {
-              startAdornment: <SearchIcon className="mr-2 text-slate-400" />
-            }
-          }}
-          className="mb-5"
-        />
+        <Stack direction="row" spacing={2} className="mb-5">
+          <TextField
+            fullWidth
+            placeholder="Search by name..."
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+            slotProps={{
+              input: {
+                startAdornment: <SearchIcon className="mr-2 text-slate-400" />
+              }
+            }}
+          />
+
+          <FormControl sx={{ minWidth: 150 }}>
+            <InputLabel>Status</InputLabel>
+            <Select
+              value={status}
+              label="Status"
+              onChange={(event) => setStatus(event.target.value)}
+            >
+              <MenuItem value="all">All</MenuItem>
+              <MenuItem value="active">Active</MenuItem>
+              <MenuItem value="inactive">Inactive</MenuItem>
+            </Select>
+          </FormControl>
+        </Stack>
 
         <Typography variant="body2" color="text.secondary" className="mb-3">
-          {visibleUsers.length} user(s) · {selectedIds.length} selected
+          {visibleUsers.length} user(s)
         </Typography>
 
         <Stack spacing={2}>
@@ -77,14 +82,8 @@ const Catalog = () => {
               <Card
                 key={user.id}
                 variant="outlined"
-                className={selectedIds.includes(user.id) ? 'border-blue-500 bg-blue-50' : ''}
               >
                 <CardContent className="flex items-center gap-3 !pb-2">
-                  <Checkbox
-                    checked={selectedIds.includes(user.id)}
-                    onChange={() => selectUser(user.id)}
-                    slotProps={{ input: { 'aria-label': `Select ${user.name}` } }}
-                  />
                   <Avatar sx={{ bgcolor: 'primary.main' }}>
                     {user.name[0]?.toUpperCase()}
                   </Avatar>
@@ -93,6 +92,12 @@ const Catalog = () => {
                       {user.name}
                     </Typography>
                     <Chip size="small" label={`${user.age} years old`} />
+                    <Chip
+                      size="small"
+                      color={user.status == 'active' ? 'success' : 'default'}
+                      label={user.status}
+                      className="ml-2"
+                    />
                   </div>
                 </CardContent>
                 <CardActions className="justify-end !px-4 !pb-3">
@@ -102,9 +107,10 @@ const Catalog = () => {
                   <IconButton color="primary" onClick={() => setEditingUser(user)}>
                     <EditOutlinedIcon />
                   </IconButton>
-                  <IconButton color="error" onClick={() => deleteOneUser(user.id)}>
+                  <IconButton color="error" onClick={() => deleteUser(user.id)}>
                     <DeleteIcon />
                   </IconButton>
+                  <input type="checkbox" checked={user.status === 'active'} onChange={() => changeStatus(user.id)} />
                 </CardActions>
               </Card>
             )
