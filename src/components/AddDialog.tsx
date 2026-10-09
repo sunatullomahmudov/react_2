@@ -1,11 +1,14 @@
-import { useState } from 'react'
 import { Button, Dialog, DialogActions, DialogContent, DialogTitle, Stack, TextField } from '@mui/material'
 import { useData } from '../store/zustand'
 
-const AddDialog = ({open, setOpen}: any) => {
+const AddDialog = () => {
     let addUser = useData((state: any) => state.addUser)
-    let [name, setName] = useState('')
-    let [age, setAge] = useState('')
+    let open = useData((state: any) => state.open)
+    let setOpen = useData((state: any) => state.setOpen)
+    let name = useData((state: any) => state.addName)
+    let age = useData((state: any) => state.addAge)
+    let setName = useData((state: any) => state.setAddName)
+    let setAge = useData((state: any) => state.setAddAge)
 
     let addNewUser = (event: any) => {
         event.preventDefault()
