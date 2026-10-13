@@ -72,9 +72,6 @@ const Catalog = () => {
           </FormControl>
         </Stack>
 
-        <Typography variant="body2" color="text.secondary" className="mb-3">
-          {visibleUsers.length} user(s)
-        </Typography>
 
         <Stack spacing={2}>
           {visibleUsers.map((user) => {
