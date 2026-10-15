@@ -1,11 +1,12 @@
-import React from 'react'
+import React from "react"
+import Catalog from "./componnents/Catalog"
+import Addproduct from "./componnents/Addproduct"
 
 const App = () => {
-  return (
-    <div>
-      
-    </div>
-  )
+  return <div>
+    <Addproduct />
+    <Catalog />
+  </div>
 }
 
 export default App
