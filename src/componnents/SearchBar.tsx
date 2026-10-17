@@ -1,8 +1,8 @@
 import { useState } from "react";
-import { Button, TextField } from "@mui/material";
+import { Button, MenuItem, TextField } from "@mui/material";
 import AddProductDialog from "./dialogs/AddproductDialog";
 
-const SearchBar = () => {
+const SearchBar = ({ search, setSearch, status, setStatus, }: any) => {
   const [open, setOpen] = useState(false);
 
   const handleOpen = () => {
@@ -20,7 +20,21 @@ const SearchBar = () => {
           label="Search users"
           variant="outlined"
           fullWidth
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
         />
+        <TextField
+        select
+        label="Status"
+        value={status}
+        onChange={(e) => setStatus(e.target.value)}
+        sx={{ minWidth: "160px"}}
+        >
+          <MenuItem value="all">All</MenuItem>
+          <MenuItem value="active">Active</MenuItem>
+          <MenuItem value="inactive">Inactive</MenuItem>
+
+        </TextField>
 
         <Button
           variant="contained"

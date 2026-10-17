@@ -1,10 +1,14 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { Pagination } from "@mui/material";
 
 import { getProducts } from "../store/productSlice";
 import ProductCard from "./ProductCard";
 
-const ProductList = () => {
+const ProductList = ({ search, status }: any) => {
+  const [page, setPage] = useState(1)
+  const usersPerPage = 6
+
   const dispatch = useDispatch();
 
   const { data, loading, error } = useSelector(
@@ -15,6 +19,10 @@ const ProductList = () => {
     dispatch(getProducts() as any);
   }, [dispatch]);
 
+  useEffect(() => {
+  setPage(1);
+}, [search, status]);
+
   if (loading) {
     return (
       <h2 className="text-center mt-10 text-xl">
@@ -22,6 +30,30 @@ const ProductList = () => {
       </h2>
     );
   }
+
+  const filteredData = data.filter((product: any) => {
+  const name = (product.name || "").toLowerCase();
+  const searchText = (search || "").toLowerCase();
+
+  const matchesSearch = name.includes(searchText);
+
+  const matchesStatus =
+    status === "all" ||
+    (status === "active" && product.status === true) ||
+    (status === "inactive" && product.status === false);
+
+  return matchesSearch && matchesStatus;
+});
+
+const startIndex = (page -1) * usersPerPage;
+const endIndex = startIndex + usersPerPage;
+const currentUsers = filteredData.slice(
+  startIndex,
+  endIndex
+)
+const pageCount = Math.ceil(
+  filteredData.length / usersPerPage
+)
 
   if (error) {
     return (
@@ -32,14 +64,25 @@ const ProductList = () => {
   }
 
   return (
+    <>
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      {data.map((product: any) => (
+      {currentUsers.map((product: any) => (
         <ProductCard
           key={product.id}
           product={product}
         />
       ))}
     </div>
+
+    <div className="flex justify-center mt-8">
+      <Pagination
+      count={pageCount}
+      page={page}
+      onChange={(_, value) => setPage(value)}
+      color="primary"
+      />
+    </div>
+    </>
   );
 };
 

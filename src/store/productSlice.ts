@@ -94,4 +94,19 @@ export const deleteProduct = createAsyncThunk(
 )
 
 
+
+// Edit
+export const editProduct = createAsyncThunk(
+  "products/editProduct",
+  async({ id, updateUser}: any) => {
+    try {
+      const { data } = await axios.put(`${API}/${id}`, updateUser)
+      return data
+    } catch (error) {
+      console.error(error)
+    }
+  }
+)
+
+
 export default productSlice.reducer

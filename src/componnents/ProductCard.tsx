@@ -4,11 +4,32 @@ import {
   Card,
   CardContent,
   Chip,
+  Switch,
 } from "@mui/material";
 import { useDispatch } from "react-redux";
 import { deleteProduct, getProducts } from "../store/productSlice";
 
+import EditProductDialog from "./dialogs/EditproductDialog";
+import { useState } from "react";
+import axios from "axios";
+import { API } from "../api/api";
+
 const ProductCard = ({ product }: any) => {
+
+  const handleStatus = async () => {
+    await axios.put(`${API}/${product.id}`,{status: !product.status,})
+    dispatch(getProducts() as any)    
+  }
+
+  const [openEdit, setOpenEdit] = useState(false)
+
+  const handleOpenEdit = () => {
+    setOpenEdit(true)
+  } 
+
+  const handleCloseEdit = () => {
+    setOpenEdit(false)
+  }
 
   const dispatch = useDispatch()
 
@@ -48,11 +69,17 @@ const ProductCard = ({ product }: any) => {
           label={product.status ? "Active" : "Inactive"}
           color={product.status ? "success" : "default"}
         />
+        <Switch
+        checked={product.status}
+        onChange={handleStatus}
+        color="success" 
+        />
 
         <div className="flex gap-2">
           <Button
             variant="contained"
             fullWidth
+            onClick={handleOpenEdit}
           >
             Edit
           </Button>
@@ -67,6 +94,10 @@ const ProductCard = ({ product }: any) => {
           </Button>
         </div>
       </CardContent>
+      <EditProductDialog 
+         open={openEdit}
+         handleClose={handleCloseEdit}
+         product={product}/>
     </Card>
   );
 };
