@@ -7,18 +7,28 @@ import {
   Switch,
 } from "@mui/material";
 import { useDispatch } from "react-redux";
-import { deleteProduct, getProducts } from "../store/productSlice";
+import { changeStatus, deleteProduct, getProducts } from "../store/productSlice";
 
 import EditProductDialog from "./dialogs/EditproductDialog";
 import { useState } from "react";
-import axios from "axios";
-import { API } from "../api/api";
 
 const ProductCard = ({ product }: any) => {
 
+  const dispatch = useDispatch()
+  const [error, setError] = useState("")
+  const [saving, setSaving] = useState(false)
+
   const handleStatus = async () => {
-    await axios.put(`${API}/${product.id}`,{status: !product.status,})
-    dispatch(getProducts() as any)    
+    setSaving(true)
+    setError("")
+    try {
+      await dispatch(changeStatus({ id: product.id, status: !product.status }) as any).unwrap()
+      await dispatch(getProducts() as any)
+    } catch {
+      setError("Could not change status")
+    } finally {
+      setSaving(false)
+    }
   }
 
   const [openEdit, setOpenEdit] = useState(false)
@@ -31,17 +41,23 @@ const ProductCard = ({ product }: any) => {
     setOpenEdit(false)
   }
 
-  const dispatch = useDispatch()
-
   const handleDelete = async () => {
-    await dispatch(deleteProduct(product.id) as any)
-
-    dispatch(getProducts() as any)
+    setSaving(true)
+    setError("")
+    try {
+      await dispatch(deleteProduct(product.id) as any).unwrap()
+      await dispatch(getProducts() as any)
+    } catch {
+      setError("Could not delete user")
+    } finally {
+      setSaving(false)
+    }
   }
 
   return (
     <Card className="rounded-2xl shadow-md hover:shadow-xl transition">
       <CardContent className="flex flex-col gap-4">
+        {error && <p className="text-red-500">{error}</p>}
         <div className="flex items-center gap-4">
           <Avatar
             src={product.image}
@@ -72,6 +88,7 @@ const ProductCard = ({ product }: any) => {
         <Switch
         checked={product.status}
         onChange={handleStatus}
+        disabled={saving}
         color="success" 
         />
 
@@ -80,6 +97,7 @@ const ProductCard = ({ product }: any) => {
             variant="contained"
             fullWidth
             onClick={handleOpenEdit}
+            disabled={saving}
           >
             Edit
           </Button>
@@ -89,6 +107,7 @@ const ProductCard = ({ product }: any) => {
             color="error"
             fullWidth
             onClick={handleDelete}
+            disabled={saving}
           >
             Delete
           </Button>

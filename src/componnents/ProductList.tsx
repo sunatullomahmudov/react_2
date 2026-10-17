@@ -1,27 +1,22 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Pagination } from "@mui/material";
 
-import { getProducts } from "../store/productSlice";
+import { getProducts, setPage } from "../store/productSlice";
 import ProductCard from "./ProductCard";
 
-const ProductList = ({ search, status }: any) => {
-  const [page, setPage] = useState(1)
+const ProductList = () => {
   const usersPerPage = 6
 
   const dispatch = useDispatch();
 
-  const { data, loading, error } = useSelector(
+  const { data, loading, error, search, status, page } = useSelector(
     (state: any) => state.products
   );
 
   useEffect(() => {
     dispatch(getProducts() as any);
   }, [dispatch]);
-
-  useEffect(() => {
-  setPage(1);
-}, [search, status]);
 
   if (loading) {
     return (
@@ -78,7 +73,7 @@ const pageCount = Math.ceil(
       <Pagination
       count={pageCount}
       page={page}
-      onChange={(_, value) => setPage(value)}
+      onChange={(_, value) => dispatch(setPage(value))}
       color="primary"
       />
     </div>

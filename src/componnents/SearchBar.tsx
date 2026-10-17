@@ -1,9 +1,13 @@
 import { useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { Button, MenuItem, TextField } from "@mui/material";
 import AddProductDialog from "./dialogs/AddproductDialog";
+import { setSearch, setStatus } from "../store/productSlice";
 
-const SearchBar = ({ search, setSearch, status, setStatus, }: any) => {
+const SearchBar = () => {
   const [open, setOpen] = useState(false);
+  const dispatch = useDispatch();
+  const { search, status } = useSelector((state: any) => state.products);
 
   const handleOpen = () => {
     setOpen(true);
@@ -21,13 +25,13 @@ const SearchBar = ({ search, setSearch, status, setStatus, }: any) => {
           variant="outlined"
           fullWidth
           value={search}
-          onChange={(e) => setSearch(e.target.value)}
+          onChange={(e) => dispatch(setSearch(e.target.value))}
         />
         <TextField
         select
         label="Status"
         value={status}
-        onChange={(e) => setStatus(e.target.value)}
+        onChange={(e) => dispatch(setStatus(e.target.value))}
         sx={{ minWidth: "160px"}}
         >
           <MenuItem value="all">All</MenuItem>

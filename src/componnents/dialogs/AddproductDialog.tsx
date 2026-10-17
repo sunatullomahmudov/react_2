@@ -1,102 +1,53 @@
-import { useState } from "react";
-import { useDispatch } from "react-redux";
-
-import {
-  Button,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-  TextField,
-} from "@mui/material";
-
-import { addProduct } from "../../store/productSlice";
+import { useState } from "react"
+import { useDispatch } from "react-redux"
+import { useFormik } from "formik"
+import { Button, Dialog, DialogActions, DialogContent, DialogTitle } from "@mui/material"
+import { addProduct, getProducts } from "../../store/productSlice"
+import UserFields from "./UserFields"
+import { userSchema, validateUser } from "./userValidation"
 
 const AddProductDialog = ({ open, handleClose }: any) => {
-  const dispatch = useDispatch();
+  const dispatch = useDispatch()
+  const [error, setError] = useState("")
 
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [phone, setPhone] = useState("");
-  const [image, setImage] = useState("");
+  const formik = useFormik({
+    initialValues: { name: "", email: "", phone: "", image: "" },
+    validate: validateUser,
+    onSubmit: async (values, { resetForm }) => {
+      setError("")
+      try {
+        await dispatch(addProduct({ ...userSchema.parse(values), status: true }) as any).unwrap()
+        resetForm()
+        handleClose()
+        dispatch(getProducts() as any)
+      } catch {
+        setError("Could not add user")
+      }
+    },
+  })
 
-  const handleAdd = async () => {
-    const newUser = {
-      name,
-      email,
-      phone,
-      image,
-      status: true,
-    };
-
-    await dispatch(addProduct(newUser) as any);
-
-    setName("");
-    setEmail("");
-    setPhone("");
-    setImage("");
-
-    handleClose();
-  };
+  const closeDialog = () => {
+    if (formik.isSubmitting) return
+    formik.resetForm()
+    setError("")
+    handleClose()
+  }
 
   return (
-    <Dialog
-      open={open}
-      onClose={handleClose}
-      fullWidth
-      maxWidth="sm"
-    >
-      <DialogTitle>
-        Add User
-      </DialogTitle>
-
-      <DialogContent className="flex flex-col gap-4 pt-4">
-        <TextField
-          label="Name"
-          fullWidth
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-        />
-
-        <TextField
-          label="Email"
-          fullWidth
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
-
-        <TextField
-          label="Phone"
-          fullWidth
-          value={phone}
-          onChange={(e) => setPhone(e.target.value)}
-        />
-
-        <TextField
-          label="Image URL"
-          fullWidth
-          value={image}
-          onChange={(e) => setImage(e.target.value)}
-        />
-      </DialogContent>
-
-      <DialogActions>
-        <Button
-          onClick={handleClose}
-          color="error"
-        >
-          Cancel
-        </Button>
-
-        <Button
-          variant="contained"
-          onClick={handleAdd}
-        >
-          Add
-        </Button>
-      </DialogActions>
+    <Dialog open={open} onClose={closeDialog} fullWidth maxWidth="sm">
+      <form onSubmit={formik.handleSubmit}>
+        <DialogTitle>Add User</DialogTitle>
+        <DialogContent className="flex flex-col gap-4 pt-4">
+          {error && <p className="text-red-500">{error}</p>}
+          <UserFields formik={formik} />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={closeDialog} color="error" disabled={formik.isSubmitting}>Cancel</Button>
+          <Button type="submit" variant="contained" disabled={formik.isSubmitting}>Add</Button>
+        </DialogActions>
+      </form>
     </Dialog>
-  );
-};
+  )
+}
 
-export default AddProductDialog;
+export default AddProductDialog

@@ -1,112 +1,108 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit"
+import axios from "axios"
 import { API } from "../api/api"
-import axios from 'axios'
 
-// Get
-export const getProducts = createAsyncThunk(
-  "product/getProducts",
-
-  async () => {
-    try {
-      const { data } = await axios.get(API)
-
-      return data
-    } catch (error: any) {
-      console.error(error)
-    }
+export const getProducts = createAsyncThunk("products/getProducts", async () => {
+  try {
+    const { data } = await axios.get(API)
+    return data
+  } catch (error) {
+    console.error(error)
+    throw error
   }
-)
+})
+
+export const addProduct = createAsyncThunk("products/addProduct", async (newUser: any) => {
+  try {
+    await axios.post(API, newUser)
+  } catch (error) {
+    console.error(error)
+    throw error
+  }
+})
+
+export const editProduct = createAsyncThunk("products/editProduct", async ({ id, updateUser }: any) => {
+  try {
+    await axios.put(`${API}/${id}`, updateUser)
+  } catch (error) {
+    console.error(error)
+    throw error
+  }
+})
+
+export const deleteProduct = createAsyncThunk("products/deleteProduct", async (id: string) => {
+  try {
+    await axios.delete(`${API}/${id}`)
+  } catch (error) {
+    console.error(error)
+    throw error
+  }
+})
+
+export const changeStatus = createAsyncThunk("products/changeStatus", async ({ id, status }: { id: string, status: boolean }) => {
+  try {
+    await axios.put(`${API}/${id}`, { status })
+  } catch (error) {
+    console.error(error)
+    throw error
+  }
+})
 
 const initialState: {
-  data: any[];
-  loading: boolean;
+  data: any[]
+  loading: boolean
   error: string | null
-}= {
+  search: string
+  status: string
+  page: number
+} = {
   data: [],
   loading: false,
-  error: null
+  error: null,
+  search: "",
+  status: "all",
+  page: 1,
 }
 
 const productSlice = createSlice({
   name: "products",
-
   initialState,
-
-  reducers: {},
-
+  reducers: {
+    setSearch: (state, action) => {
+      state.search = action.payload
+      state.page = 1
+    },
+    setStatus: (state, action) => {
+      state.status = action.payload
+      state.page = 1
+    },
+    setPage: (state, action) => {
+      state.page = action.payload
+    },
+  },
   extraReducers: (builder) => {
-    builder.addCase(getProducts.pending, 
-      (state) => {
-        state.loading = true
-        state.error = null
-      }
-    )
+    builder.addCase(getProducts.pending, (state) => {
+      state.loading = true
+      state.error = null
+    })
     .addCase(getProducts.fulfilled, (state, action) => {
-      state.loading = false,
-      state.data = action.payload;
+      state.loading = false
+      state.data = action.payload
+      const filtered = state.data.filter((product) => {
+        const matchesSearch = (product.name || "").toLowerCase().includes(state.search.toLowerCase())
+        const matchesStatus = state.status === "all" ||
+          (state.status === "active" && product.status === true) ||
+          (state.status === "inactive" && product.status === false)
+        return matchesSearch && matchesStatus
+      })
+      state.page = Math.min(state.page, Math.max(1, Math.ceil(filtered.length / 6)))
     })
     .addCase(getProducts.rejected, (state) => {
-      state.loading = false,
-      state.error = "Error"
+      state.loading = false
+      state.error = "Error loading users"
     })
-    .addCase(addProduct.pending, (state) => {
-      state.loading = true
-    })
-    .addCase(addProduct.fulfilled, (state, action) => {
-      state.loading = false,
-      state.data.push(action.payload)
-    })
-    .addCase(addProduct.rejected, (state)=> {
-      state.loading = false,
-      state.error = "Add user error"
-    })
-  }
+  },
 })
 
-
-// Add
-export const addProduct = createAsyncThunk(
-  "products/addProduct",
-  async (newUser: any) => {
-    try {
-      const { data } = await axios.post(API, newUser);
-
-      return data;
-    } catch (error) {
-      console.log(error);
-      throw error;
-    }
-  }
-);
-
-// Delete
-export const deleteProduct = createAsyncThunk(
-  "product/deleteProduct",
-  async (id: string) => {
-    try {
-      await axios.delete(`${API}/${id}`)
-      return id
-    } catch (error) {
-      console.error(error)
-      throw error
-    }
-  }
-)
-
-
-
-// Edit
-export const editProduct = createAsyncThunk(
-  "products/editProduct",
-  async({ id, updateUser}: any) => {
-    try {
-      const { data } = await axios.put(`${API}/${id}`, updateUser)
-      return data
-    } catch (error) {
-      console.error(error)
-    }
-  }
-)
-
-
+export const { setSearch, setStatus, setPage } = productSlice.actions
 export default productSlice.reducer
