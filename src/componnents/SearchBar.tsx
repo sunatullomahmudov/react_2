@@ -1,6 +1,9 @@
 import { useAtom } from "jotai";
 import { useDispatch, useSelector } from "react-redux";
-import { Button, MenuItem, TextField } from "@mui/material";
+import { Button, InputAdornment, MenuItem, TextField } from "@mui/material";
+import SearchRoundedIcon from "@mui/icons-material/SearchRounded";
+import AddRoundedIcon from "@mui/icons-material/AddRounded";
+import TuneRoundedIcon from "@mui/icons-material/TuneRounded";
 import AddProductDialog from "./dialogs/AddproductDialog";
 import { openAddAtom } from "../store/addProductAtom";
 import { setSearch, setStatus } from "../store/productSlice";
@@ -10,55 +13,19 @@ const SearchBar = () => {
   const dispatch = useDispatch();
   const { search, status } = useSelector((state: any) => state.products);
 
-  const handleOpen = () => {
-    setOpen(true);
-  };
-
-  const handleClose = () => {
-    setOpen(false);
-  };
-
   return (
     <>
-      <div className="flex flex-col md:flex-row gap-3 mb-6">
-        <TextField
-          label="Search users"
-          variant="outlined"
-          fullWidth
-          value={search}
-          onChange={(e) => dispatch(setSearch(e.target.value))}
-        />
-        <TextField
-        select
-        label="Status"
-        value={status}
-        onChange={(e) => dispatch(setStatus(e.target.value))}
-        sx={{ minWidth: "160px"}}
-        >
-          <MenuItem value="all">All</MenuItem>
-          <MenuItem value="active">Active</MenuItem>
-          <MenuItem value="inactive">Inactive</MenuItem>
-
+      <div className="toolbar">
+        <TextField className="search-field" placeholder="Search by name..." value={search} onChange={(e) => dispatch(setSearch(e.target.value))} aria-label="Search users" fullWidth
+          slotProps={{ input: { startAdornment: <InputAdornment position="start"><SearchRoundedIcon /></InputAdornment> } }} />
+        <TextField className="filter-field" select value={status} onChange={(e) => dispatch(setStatus(e.target.value))} aria-label="Filter by status"
+          slotProps={{ input: { startAdornment: <InputAdornment position="start"><TuneRoundedIcon /></InputAdornment> } }}>
+          <MenuItem value="all">All status</MenuItem><MenuItem value="active">Active</MenuItem><MenuItem value="inactive">Inactive</MenuItem>
         </TextField>
-
-        <Button
-          variant="contained"
-          onClick={handleOpen}
-          sx={{
-            minWidth: "150px",
-            borderRadius: "12px",
-          }}
-        >
-          Add User
-        </Button>
+        <Button className="add-button" variant="contained" startIcon={<AddRoundedIcon />} onClick={() => setOpen(true)}>Add person</Button>
       </div>
-
-      <AddProductDialog
-        open={open}
-        handleClose={handleClose}
-      />
+      <AddProductDialog open={open} handleClose={() => setOpen(false)} />
     </>
   );
 };
-
 export default SearchBar;
