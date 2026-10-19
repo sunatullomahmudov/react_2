@@ -12,42 +12,6 @@ export const getProducts = createAsyncThunk("products/getProducts", async () => 
   }
 })
 
-export const addProduct = createAsyncThunk("products/addProduct", async (newUser: any) => {
-  try {
-    await axios.post(API, newUser)
-  } catch (error) {
-    console.error(error)
-    throw error
-  }
-})
-
-export const editProduct = createAsyncThunk("products/editProduct", async ({ id, updateUser }: any) => {
-  try {
-    await axios.put(`${API}/${id}`, updateUser)
-  } catch (error) {
-    console.error(error)
-    throw error
-  }
-})
-
-export const deleteProduct = createAsyncThunk("products/deleteProduct", async (id: string) => {
-  try {
-    await axios.delete(`${API}/${id}`)
-  } catch (error) {
-    console.error(error)
-    throw error
-  }
-})
-
-export const changeStatus = createAsyncThunk("products/changeStatus", async ({ id, status }: { id: string, status: boolean }) => {
-  try {
-    await axios.put(`${API}/${id}`, { status })
-  } catch (error) {
-    console.error(error)
-    throw error
-  }
-})
-
 const initialState: {
   data: any[]
   loading: boolean

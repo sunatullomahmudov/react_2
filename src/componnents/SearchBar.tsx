@@ -1,11 +1,12 @@
-import { useState } from "react";
+import { useAtom } from "jotai";
 import { useDispatch, useSelector } from "react-redux";
 import { Button, MenuItem, TextField } from "@mui/material";
 import AddProductDialog from "./dialogs/AddproductDialog";
+import { openAddAtom } from "../store/addProductAtom";
 import { setSearch, setStatus } from "../store/productSlice";
 
 const SearchBar = () => {
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useAtom(openAddAtom);
   const dispatch = useDispatch();
   const { search, status } = useSelector((state: any) => state.products);
 

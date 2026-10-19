@@ -7,7 +7,8 @@ import {
   Switch,
 } from "@mui/material";
 import { useDispatch } from "react-redux";
-import { changeStatus, deleteProduct, getProducts } from "../store/productSlice";
+import { getProducts } from "../store/productSlice";
+import { useProductActions } from "../store/productActions";
 
 import EditProductDialog from "./dialogs/EditproductDialog";
 import { useState } from "react";
@@ -15,6 +16,7 @@ import { useState } from "react";
 const ProductCard = ({ product }: any) => {
 
   const dispatch = useDispatch()
+  const { deleteProduct, changeStatus } = useProductActions()
   const [error, setError] = useState("")
   const [saving, setSaving] = useState(false)
 
@@ -22,7 +24,7 @@ const ProductCard = ({ product }: any) => {
     setSaving(true)
     setError("")
     try {
-      await dispatch(changeStatus({ id: product.id, status: !product.status }) as any).unwrap()
+      await changeStatus(product.id, !product.status)
       await dispatch(getProducts() as any)
     } catch {
       setError("Could not change status")
@@ -45,7 +47,7 @@ const ProductCard = ({ product }: any) => {
     setSaving(true)
     setError("")
     try {
-      await dispatch(deleteProduct(product.id) as any).unwrap()
+      await deleteProduct(product.id)
       await dispatch(getProducts() as any)
     } catch {
       setError("Could not delete user")
