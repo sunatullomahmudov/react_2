@@ -9,7 +9,7 @@ const App = () => {
     <div className="min-h-screen bg-gray-100 p-6">
       <div className="max-w-7xl mx-auto">
         <h1 className="text-3xl font-bold mb-6">
-          Users Dashboard
+          Users Crud
         </h1>
 
         <SearchBar
