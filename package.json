@@ -10,8 +10,14 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@tailwindcss/vite": "^4.3.3",
+    "axios": "^1.20.0",
+    "formik": "^2.4.9",
+    "jotai": "^3.0.1",
     "react": "^19.2.8",
-    "react-dom": "^19.2.8"
+    "react-dom": "^19.2.8",
+    "react-hook-form": "^7.90.0",
+    "tailwindcss": "^4.3.3"
   },
   "devDependencies": {
     "@types/node": "^24.13.3",
