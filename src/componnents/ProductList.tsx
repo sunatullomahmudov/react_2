@@ -23,19 +23,16 @@ const ProductList = () => {
 
   return (
     <div className="list-area">
-      {loading ? <div className="empty-state"><span className="loading-ring" /><strong>Loading your people</strong><span>Just a moment...</span></div>
-      : error ? <div className="empty-state error-state"><strong>Couldn’t load your people</strong><span>{error}</span></div>
-      : filteredData.length === 0 ? <div className="empty-state"><div className="empty-icon"><PeopleOutlineRoundedIcon /></div><strong>No people found</strong><span>Try another search or add someone new.</span></div>
+      {loading ? <div className="empty-state"><span className="loading-ring" /><strong>Finding your people</strong><span>Syncing your constellation...</span></div>
+      : error ? <div className="empty-state error-state"><strong>Connection interrupted</strong><span>{error}</span></div>
+      : filteredData.length === 0 ? <div className="empty-state"><div className="empty-icon"><PeopleOutlineRoundedIcon /></div><strong>No one in this orbit yet</strong><span>Try another search or add a new connection.</span></div>
       : <>
-        <div className="table-wrap">
-          <table className="people-table">
-            <thead><tr><th>PERSON</th><th>CONTACT</th><th>PHONE</th><th>STATUS</th><th className="actions-heading">ACTIONS</th></tr></thead>
-            <tbody>{currentUsers.map((product: any) => <ProductCard key={product.id} product={product} />)}</tbody>
-          </table>
-        </div>
-        <div className="table-footer"><span>Showing <strong>{startIndex + 1}–{Math.min(startIndex + usersPerPage, filteredData.length)}</strong> of <strong>{filteredData.length}</strong> people</span><Pagination count={pageCount} page={page} onChange={(_, value) => dispatch(setPage(value))} className="pagination" shape="rounded" /></div>
+        <div className="results-heading"><span><span className="results-indicator" /> PEOPLE IN VIEW <strong>{String(filteredData.length).padStart(2, "0")}</strong></span><span className="results-side">IDENTITY CARDS / {String(page).padStart(2, "0")}</span></div>
+        <div className="people-grid" key={`${search}-${status}-${page}`}>{currentUsers.map((product: any, index: number) => <ProductCard key={product.id} product={product} index={index} />)}</div>
+        <div className="list-footer"><span>Showing <strong>{startIndex + 1}–{Math.min(startIndex + usersPerPage, filteredData.length)}</strong> of <strong>{filteredData.length}</strong> connections</span><Pagination count={pageCount} page={page} onChange={(_, value) => dispatch(setPage(value))} className="pagination" shape="rounded" /></div>
       </>}
     </div>
   );
 };
+
 export default ProductList;
